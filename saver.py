@@ -5,12 +5,6 @@ from PIL import Image
 
 """Program to sort Windows10 Spotlight pics"""
 
-def is_wallpaper(file):
-    img = Image.open(file)
-    width, height = img.size
-    if width != 1920 or height != 1080:
-        delete_file(file)
-
 
 def delete_file(file):
     os.remove(file)
@@ -51,6 +45,24 @@ def move_files(src_folder, dst_folder):
             shutil.move(file_name, final_name)
 
 
+def remove_icons(folder):
+    for file in os.listdir(folder):
+        file_path = os.path.join(folder, file)
+
+        # try/except block to catch OS error for non png files
+        try:
+            img = Image.open(file_path)
+            width, height = img.size
+            if width != 1920 or height != 1080:
+                img.close()
+                delete_file(file_path)
+        except OSError:
+            delete_file(file_path)
+            print("Not a .png file")
+
+
+
+
 homepath = str(Path.home())
 path = homepath + "/AppData/Local/Packages/Microsoft.Windows.ContentDeliveryManager_cw5n1h2txyewy/LocalState/Assets"
 temp_path = homepath + "\\Downloads\\tmp\\"
@@ -62,6 +74,10 @@ newfiles = os.listdir(temp_path)
 rename_files(temp_path)
 
 final_path = homepath + "\\Downloads\\final\\"
+move_files(temp_path, final_path)
+remove_icons(final_path)
+
+
 
 # TODO Merge copy and move files functions
 # TODO Delete Duplicates
